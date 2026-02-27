@@ -1,0 +1,129 @@
+name: hub-platform
+
+x-php-base: &php-base
+  build:
+    context: .
+    dockerfile: docker/php/Dockerfile
+  environment:
+    PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+  networks:
+    - backend
+
+services:
+  hub-app:
+    <<: *php-base
+    container_name: hub-app
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - backend
+
+  hub-nginx:
+    image: nginx:1.27-alpine
+    container_name: hub-nginx
+    ports:
+      - "8082:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/hub.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - hub-app
+    networks:
+      - backend
+
+  hr-app:
+    <<: *php-base
+    container_name: hr-app
+    working_dir: /var/www/html
+    volumes:
+      - ../hr-service:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - backend
+
+  hr-nginx:
+    image: nginx:1.27-alpine
+    container_name: hr-nginx
+    ports:
+      - "8083:80"
+    volumes:
+      - ../hr-service:/var/www/html
+      - ./docker/nginx/hr.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - hr-app
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: hub-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: hub
+      POSTGRES_USER: hub
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: hub-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: hub-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: hub
+      RABBITMQ_DEFAULT_PASS: secret
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - backend
+
+  soketi:
+    image: quay.io/soketi/soketi:latest
+    container_name: hub-soketi
+    ports:
+      - "6001:6001"
+      - "9601:9601"
+    environment:
+      SOKETI_DEFAULT_APP_ID: hub-app
+      SOKETI_DEFAULT_APP_KEY: hub-app-key
+      SOKETI_DEFAULT_APP_SECRET: hub-app-secret
+      SOKETI_DEFAULT_APP_MAX_CONNECTIONS: 1000
+      SOKETI_DEFAULT_APP_MAX_BACKEND_EVENTS_PER_SEC: 100
+      SOKETI_DEFAULT_APP_MAX_CLIENT_EVENTS_PER_SEC: 100
+      SOKETI_DEFAULT_APP_ENABLE_CLIENT_MESSAGES: "true"
+      SOKETI_METRICS_ENABLED: "true"
+    networks:
+      - backend
+
+volumes:
+  postgres-data:
+  redis-data:
+  rabbitmq-data:
+
+networks:
+  backend:
+    driver: bridge
