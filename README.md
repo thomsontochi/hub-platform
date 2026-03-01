@@ -41,6 +41,44 @@ open http://localhost:8082   # HubService
 open http://localhost:8083   # HR Service
 ```
 
+## Architecture
+
+- Full domain notes live in [`docs/domain.md`](docs/domain.md).
+- The diagram below captures the core event flow and runtime dependencies.
+
+```mermaid
+flowchart LR
+    subgraph HR[HR Service]
+        HRAPI[REST API]
+        HRDB[(PostgreSQL)]
+    end
+
+    subgraph MQ[RabbitMQ]
+        EX[(employee.events exchange)]
+        Q[(hub.employee.events queue)]
+    end
+
+    subgraph HUB[Hub Service]
+        Consumer[Event Consumer]
+        Checklist[Checklist Engine]
+        Cache[(Redis Cache)]
+        API[Server-driven UI APIs]
+        Socket[Broadcaster (Soketi)]
+    end
+
+    HRAPI -- CRUD -> HRDB
+    HRAPI -- Publish events --> EX
+    EX -- routed events --> Q
+    Q -- consume --> Consumer
+    Consumer --> Checklist
+    Checklist --> Cache
+    Cache --> API
+    Checklist -. invalidation .-> Cache
+    Consumer --> Socket
+    API --> Clients[Admin Clients]
+    Socket --> Clients
+```
+
 Default Docker network hosts:
 
 | Service      | Hostname   | Port |
@@ -51,6 +89,12 @@ Default Docker network hosts:
 | Redis        | redis      | 6379 |
 | RabbitMQ     | rabbitmq   | 5672 / 15672 (mgmt) |
 | Soketi       | soketi     | 6001 / 9601 |
+
+---
+
+## Messaging & Queue Workers
+
+- HR Service publishes employee events to RabbitMQ via a queued job. See [`docs/messaging.md`](docs/messaging.md) for routing keys, binding instructions, and the queue worker command (`docker compose -f hub-service/docker-compose.yml exec hr-app php artisan queue:work --queue=events --tries=5`).
 
 ---
 
