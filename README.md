@@ -95,6 +95,7 @@ Default Docker network hosts:
 ## Messaging & Queue Workers
 
 - HR Service publishes employee events to RabbitMQ via a queued job. See [`docs/messaging.md`](docs/messaging.md) for routing keys, binding instructions, and the queue worker command (`docker compose -f hub-service/docker-compose.yml exec hr-app php artisan queue:work --queue=events --tries=5`).
+- Hub Service declares `hub.employee.events` (topic queue) and streams messages into its Redis-backed projection via `php artisan events:consume-employee`. Queue topology and consumer flow are documented in [`docs/messaging.md`](docs/messaging.md#hub-service-consumer).
 
 ---
 

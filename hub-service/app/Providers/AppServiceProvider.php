@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\ConsumeEmployeeEvents;
+use App\Domain\Employees\Contracts\EmployeeCache;
+use App\Domain\Employees\Contracts\EmployeeEventHandler;
+use App\Domain\Employees\Handlers\ProjectingEmployeeEventHandler;
+use App\Infrastructure\Employees\CacheEmployeeCache;
+use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +17,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(EmployeeEventHandler::class, ProjectingEmployeeEventHandler::class);
+        $this->app->singleton(EmployeeCache::class, function ($app) {
+            $cacheFactory = $app->make(CacheFactory::class);
+            $storeName = config('cache.events_store', config('cache.default'));
+
+            return new CacheEmployeeCache($cacheFactory->store($storeName));
+        });
     }
 
     /**
@@ -19,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ConsumeEmployeeEvents::class,
+            ]);
+        }
     }
 }

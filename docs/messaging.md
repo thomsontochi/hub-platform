@@ -20,6 +20,65 @@ docker compose -f hub-service/docker-compose.yml exec hr-app php artisan queue:w
 
 Leave this running while you interact with the API. Press `Ctrl+C` when finished.
 
+### Hub Service Consumer
+
+The Hub service declares its own queue (`hub.employee.events`) and consumes events with:
+
+```bash
+docker compose -f hub-service/docker-compose.yml exec hub-app php artisan events:consume-employee
+```
+
+This command runs `App\Messaging\RabbitMq\RabbitMqConsumer` which:
+
+1. Declares the `hub.employee.events` queue (durable) and binds it to the `employee.events` exchange with routing keys defined in `config/rabbitmq.php` (default `employee.*.*`).
+2. Streams messages to `App\Domain\Employees\Handlers\ProjectingEmployeeEventHandler`, which keeps Redis snapshots up to date via `CacheEmployeeCache`.
+3. ACK/NACKs messages and logs failures for observability.
+
+Snapshots are stored at `employees:snapshots:{id}` with per-country indexes `employees:snapshots:index:{country}` for fast checklist lookups.
+
+### End-to-End Verification Workflow
+
+Follow this checklist whenever you need to rebuild the cache projection or confirm the Phase 3 flow end to end:
+
+1. **Boot the stack**
+   ```bash
+   docker compose -f hub-service/docker-compose.yml up -d
+   ```
+2. **Start the HR publisher worker** (terminal A)
+   ```bash
+   docker compose -f hub-service/docker-compose.yml exec hr-app \
+     php artisan queue:work --queue=events --tries=5
+   ```
+3. **Start the Hub consumer** (terminal B)
+   ```bash
+   docker compose -f hub-service/docker-compose.yml exec hub-app \
+     php artisan events:consume-employee
+   ```
+4. **Trigger an employee mutation** (e.g., create via HTTP)
+   ```bash
+   curl -X POST http://localhost:8083/api/v1/employees \
+     -H 'Content-Type: application/json' \
+     -d '{
+           "first_name": "Ada",
+           "last_name": "Lovelace",
+           "salary": 120000,
+           "country": "usa",
+           "attributes": {"ssn": "123-45-6789"}
+         }'
+   ```
+5. **Inspect the cached snapshot**
+   ```bash
+   docker compose -f hub-service/docker-compose.yml exec hub-app \
+     php artisan tinker --execute="cache()->store('redis')->get('employees:snapshots:1')"
+   ```
+6. **Run automated tests when needed**
+   ```bash
+   docker compose -f hub-service/docker-compose.yml exec hub-app ./vendor/bin/pest
+   docker compose -f hub-service/docker-compose.yml exec hr-app ./vendor/bin/pest
+   ```
+
+If you need to recreate snapshots from scratch, clear the Redis keys (`employees:snapshots:*`) and replay events by re-running the publisher + consumer with fresh API calls.
+
 ## Observing Messages via Management UI
 1. Open http://localhost:15672 (user `hub`, password `secret`).
 2. Create a temporary queue:
