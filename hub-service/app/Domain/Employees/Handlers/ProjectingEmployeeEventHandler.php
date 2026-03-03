@@ -2,16 +2,19 @@
 
 namespace App\Domain\Employees\Handlers;
 
+use App\Domain\Checklists\Services\ChecklistProjectionService;
 use App\Domain\Employees\Contracts\EmployeeCache;
 use App\Domain\Employees\Contracts\EmployeeEventHandler;
 use App\Domain\Employees\DTOs\EmployeeSnapshot;
+use App\Events\ChecklistUpdated;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class ProjectingEmployeeEventHandler implements EmployeeEventHandler
 {
     public function __construct(
-        protected EmployeeCache $cache
+        protected EmployeeCache $cache,
+        protected ChecklistProjectionService $projectionService
     ) {
     }
 
@@ -33,7 +36,13 @@ class ProjectingEmployeeEventHandler implements EmployeeEventHandler
 
         if ($action === 'deleted') {
             if ($employeeId) {
-                $this->cache->forget($employeeId);
+                $snapshot = $this->cache->forget($employeeId);
+
+                if ($snapshot) {
+                    $projection = $this->projectionService->remove($snapshot);
+                    ChecklistUpdated::dispatch($projection);
+                }
+
                 Log::info('Employee removed from cache after delete event', [
                     'employee_id' => $employeeId,
                     'routing_key' => $routingKey,
@@ -64,6 +73,11 @@ class ProjectingEmployeeEventHandler implements EmployeeEventHandler
         ]));
 
         $this->cache->put($snapshot);
+        $projection = $this->projectionService->project($snapshot);
+
+        if ($projection) {
+            ChecklistUpdated::dispatch($projection);
+        }
 
         Log::info('Employee snapshot cached from event', [
             'employee_id' => $snapshot->id,

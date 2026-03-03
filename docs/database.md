@@ -19,6 +19,8 @@ Run the following from the project root to open an interactive `psql` session in
 
 ```bash
 docker compose exec postgres psql -U hub -d hr_service
+
+docker compose exec postgres psql -U hub -d hub
 ```
 
 - `postgres` is the Docker service name.

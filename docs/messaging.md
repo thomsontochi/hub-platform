@@ -36,6 +36,22 @@ This command runs `App\Messaging\RabbitMq\RabbitMqConsumer` which:
 
 Snapshots are stored at `employees:snapshots:{id}` with per-country indexes `employees:snapshots:index:{country}` for fast checklist lookups.
 
+### Hub Service Consumer
+
+The Hub service declares its own queue (`hub.employee.events`) and consumes events with:
+
+```bash
+docker compose -f hub-service/docker-compose.yml exec hub-app php artisan events:consume-employee
+```
+
+This command runs `App\Messaging\RabbitMq\RabbitMqConsumer` which:
+
+1. Declares the `hub.employee.events` queue (durable) and binds it to the `employee.events` exchange with routing keys defined in `config/rabbitmq.php` (default `employee.*.*`).
+2. Streams messages to `App\Domain\Employees\Handlers\ProjectingEmployeeEventHandler`, which keeps Redis snapshots up to date via `CacheEmployeeCache`.
+3. ACK/NACKs messages and logs failures for observability.
+
+Snapshots are stored at `employees:snapshots:{id}` with per-country indexes `employees:snapshots:index:{country}` for fast checklist lookups.
+
 ### End-to-End Verification Workflow
 
 Follow this checklist whenever you need to rebuild the cache projection or confirm the Phase 3 flow end to end:

@@ -10,7 +10,7 @@ interface EmployeeCache
 
     public function put(EmployeeSnapshot $snapshot, int $ttlSeconds = 300): void;
 
-    public function forget(int $employeeId): void;
+    public function forget(int $employeeId): ?EmployeeSnapshot;
 
     /**
      * @return array<int, EmployeeSnapshot>

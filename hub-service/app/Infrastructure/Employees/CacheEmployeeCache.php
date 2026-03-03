@@ -46,14 +46,14 @@ class CacheEmployeeCache implements EmployeeCache
         $this->cache->put($indexKey, $ids, Carbon::now()->addSeconds($ttlSeconds));
     }
 
-    public function forget(int $employeeId): void
+    public function forget(int $employeeId): ?EmployeeSnapshot
     {
         $snapshot = $this->getSnapshot($employeeId);
 
         $this->cache->forget($this->snapshotKey($employeeId));
 
         if (! $snapshot) {
-            return;
+            return null;
         }
 
         $indexKey = $this->countryIndexKey($snapshot->country);
@@ -67,6 +67,8 @@ class CacheEmployeeCache implements EmployeeCache
         } else {
             $this->cache->forget($indexKey);
         }
+
+        return $snapshot;
     }
 
     public function allForCountry(string $country): array

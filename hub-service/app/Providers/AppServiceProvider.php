@@ -3,9 +3,13 @@
 namespace App\Providers;
 
 use App\Console\Commands\ConsumeEmployeeEvents;
+use App\Domain\Checklists\Contracts\ChecklistCache;
+use App\Domain\Checklists\Contracts\ChecklistRuleRepository;
 use App\Domain\Employees\Contracts\EmployeeCache;
 use App\Domain\Employees\Contracts\EmployeeEventHandler;
 use App\Domain\Employees\Handlers\ProjectingEmployeeEventHandler;
+use App\Infrastructure\Checklists\CacheChecklistCache;
+use App\Infrastructure\Checklists\ConfigChecklistRuleRepository;
 use App\Infrastructure\Employees\CacheEmployeeCache;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +27,14 @@ class AppServiceProvider extends ServiceProvider
             $storeName = config('cache.events_store', config('cache.default'));
 
             return new CacheEmployeeCache($cacheFactory->store($storeName));
+        });
+
+        $this->app->singleton(ChecklistRuleRepository::class, ConfigChecklistRuleRepository::class);
+        $this->app->singleton(ChecklistCache::class, function ($app) {
+            $cacheFactory = $app->make(CacheFactory::class);
+            $storeName = config('cache.checklists_store', config('cache.default'));
+
+            return new CacheChecklistCache($cacheFactory->store($storeName));
         });
     }
 
