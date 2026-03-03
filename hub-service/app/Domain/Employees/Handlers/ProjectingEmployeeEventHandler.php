@@ -7,6 +7,7 @@ use App\Domain\Employees\Contracts\EmployeeCache;
 use App\Domain\Employees\Contracts\EmployeeEventHandler;
 use App\Domain\Employees\DTOs\EmployeeSnapshot;
 use App\Events\ChecklistUpdated;
+use App\Infrastructure\UI\Cache\UiCacheRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +15,8 @@ class ProjectingEmployeeEventHandler implements EmployeeEventHandler
 {
     public function __construct(
         protected EmployeeCache $cache,
-        protected ChecklistProjectionService $projectionService
+        protected ChecklistProjectionService $projectionService,
+        protected UiCacheRepository $uiCache
     ) {
     }
 
@@ -41,6 +43,7 @@ class ProjectingEmployeeEventHandler implements EmployeeEventHandler
                 if ($snapshot) {
                     $projection = $this->projectionService->remove($snapshot);
                     ChecklistUpdated::dispatch($projection);
+                    $this->uiCache->forgetEmployees($snapshot->country);
                 }
 
                 Log::info('Employee removed from cache after delete event', [
@@ -74,6 +77,8 @@ class ProjectingEmployeeEventHandler implements EmployeeEventHandler
 
         $this->cache->put($snapshot);
         $projection = $this->projectionService->project($snapshot);
+
+        $this->uiCache->forgetEmployees($snapshot->country);
 
         if ($projection) {
             ChecklistUpdated::dispatch($projection);

@@ -44,6 +44,8 @@ open http://localhost:8083   # HR Service
 ## Architecture
 
 - Full domain notes live in [`docs/domain.md`](docs/domain.md).
+- Phase progress and API payloads are tracked in [`docs/api.md`](docs/api.md) — Phase 5 introduces the server-driven UI endpoints powering navigation, schema, and employee listings.
+- Test strategy updates (including Phase 5 coverage) are outlined in [`docs/testing.md`](docs/testing.md).
 - The diagram below captures the core event flow and runtime dependencies.
 
 ```mermaid
@@ -140,5 +142,6 @@ Both Laravel apps will throw `Illuminate\Encryption\MissingAppKeyException` unti
 - Align HR Service `.env` with any additional integration settings once new services are introduced.
 - Add automated integration tests (Pest) that exercise event publishing and Redis caching once business logic lands.
 - Document the event schema and WebSocket channels as features are implemented.
+- Build a thin UI shell (Vue/React) that consumes the Phase 5 server-driven UI APIs for a full demo experience.
 
 Happy hacking! :rocket: from developia

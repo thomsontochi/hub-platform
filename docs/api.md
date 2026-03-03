@@ -1,6 +1,129 @@
-# HR Service API Reference
+# API Reference
 
-Base URL (inside Docker network): `http://hr-nginx/api/v1`
+This document covers both services. URLs assume execution inside the Docker network (substitute `localhost` ports when calling via Nginx proxies).
+
+---
+
+## Hub Service — Server-Driven UI APIs (Phase 5)
+
+- **Base URL**: `http://hub-nginx/api`
+
+### List Steps
+
+- **GET** `/steps`
+- **Query Parameters**
+  - `country` (required, string – lower-case ISO code used in config)
+- **Response 200**
+  ```json
+  {
+    "data": [
+      {
+        "id": "dashboard",
+        "label": "Overview",
+        "icon": "ph-gauge",
+        "path": "/dashboard",
+        "meta": {
+          "description": "KPIs and summaries"
+        }
+      }
+    ]
+  }
+  ```
+
+### List Employees (Server-driven Table)
+
+- **GET** `/employees`
+- **Query Parameters**
+  - `country` (required, string – lower-case ISO code)
+  - `per_page` (optional, int, default 15, max 100)
+  - `page` (optional, int)
+- **Response 200**
+  ```json
+  {
+    "data": {
+      "columns": [
+        {
+          "field": "name",
+          "key": "name",
+          "label": "First Name",
+          "type": "text"
+        },
+        {
+          "field": "ssn",
+          "key": "attributes.ssn",
+          "label": "SSN",
+          "type": "text",
+          "mask": true
+        }
+      ],
+      "employees": [
+        {
+          "id": 1,
+          "name": "John",
+          "last_name": "Doe",
+          "salary": 75000,
+          "country": "USA",
+          "attributes": {
+            "ssn": "***-**-6789"
+          },
+          "meta": []
+        }
+      ]
+    },
+    "links": {
+      "first": "http://hub-nginx/api/employees?page=1",
+      "last": "http://hub-nginx/api/employees?page=1",
+      "prev": null,
+      "next": null
+    },
+    "meta": {
+      "current_page": 1,
+      "from": 1,
+      "last_page": 1,
+      "path": "http://hub-nginx/api/employees",
+      "per_page": 15,
+      "to": 1,
+      "total": 1
+    }
+  }
+  ```
+
+> Sensitive values (e.g. SSN) are masked using `***-**-1234` format before leaving the service.
+
+### Step Schema (Widgets)
+
+- **GET** `/schema/{step}`
+- **URI Parameters**
+  - `step` (required, string – step identifier as returned by `/steps`)
+- **Query Parameters**
+  - `country` (required, string)
+- **Response 200**
+  ```json
+  {
+    "data": [
+      {
+        "id": "employee_count",
+        "type": "stat",
+        "label": "Active employees",
+        "icon": "ph-users-three",
+        "data_source": "employees.total",
+        "channels": ["checklists.us"],
+        "meta": {
+          "presentation": "large"
+        }
+      }
+    ]
+  }
+  ```
+- **Response 404** — returned when no widgets are configured for the requested step/country.
+
+> Responses are cached per country/step using `ui.cache.*` TTLs; caches are invalidated on employee events.
+
+---
+
+## HR Service API Reference
+
+Base URL: `http://hr-nginx/api/v1`
 
 ## Authentication
 

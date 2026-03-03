@@ -21,6 +21,14 @@ Both Laravel services use Pest for unit, feature, and integration testing.
 - **Integration**: Event handler + cache projection flows covering create/delete life cycle and broadcast assertions (@hub-service/tests/Feature/ChecklistProjectionIntegrationTest.php).
 - Run with `docker compose exec hub-app ./vendor/bin/pest` while containers are up (RabbitMQ/Redis not required; tests use in-memory stores).
 
+## Hub Service — Server-Driven UI APIs (Phase 5)
+
+- **Feature**: `/api/steps` per-country navigation retrieval and validation envelopes (@hub-service/tests/Feature/StepsApiTest.php).
+- **Feature**: `/api/employees` pagination, SSN masking, and column metadata responses (@hub-service/tests/Feature/EmployeesApiTest.php).
+- **Feature**: `/api/schema/{step}` widget configuration lookups and 404 handling (@hub-service/tests/Feature/SchemaApiTest.php).
+- Tests default to the in-memory cache driver; override with `CACHE_UI_STORE` to exercise Redis locally.
+- Run via `docker compose -f hub-service/docker-compose.yml exec hub-app ./vendor/bin/pest tests/Feature/*.php` for targeted suites or `make test-hub` for full coverage.
+
 ## CI Guidance
 
 - Add a GitHub Actions workflow that executes:

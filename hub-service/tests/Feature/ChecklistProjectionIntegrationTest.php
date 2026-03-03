@@ -9,6 +9,7 @@ use App\Events\ChecklistUpdated;
 use App\Infrastructure\Checklists\CacheChecklistCache;
 use App\Infrastructure\Checklists\ConfigChecklistRuleRepository;
 use App\Infrastructure\Employees\CacheEmployeeCache;
+use App\Infrastructure\UI\Cache\UiCacheRepository;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
 use Illuminate\Support\Carbon;
@@ -29,6 +30,7 @@ function makeChecklistPipeline(): array
     $evaluator = new ChecklistEvaluator();
     $checklistCache = new CacheChecklistCache(new Repository(new ArrayStore()));
     $employeeCache = new CacheEmployeeCache(new Repository(new ArrayStore()));
+    $uiCache = new UiCacheRepository(new Repository(new ArrayStore()));
 
     $service = new ChecklistProjectionService(
         $ruleRepository,
@@ -37,7 +39,7 @@ function makeChecklistPipeline(): array
         $employeeCache,
     );
 
-    $handler = new ProjectingEmployeeEventHandler($employeeCache, $service);
+    $handler = new ProjectingEmployeeEventHandler($employeeCache, $service, $uiCache);
 
     return compact('service', 'handler', 'employeeCache');
 }
