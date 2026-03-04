@@ -82,18 +82,22 @@ jobs:
         working-directory: hub-service
         env:
           DB_CONNECTION: sqlite
-          DB_DATABASE: "$(pwd)/database/database.sqlite"
+          DB_DATABASE: "${{ github.workspace }}/hub-service/database/database.sqlite"
         run: |
+          mkdir -p database
           touch database/database.sqlite
+          php artisan key:generate --force
           php artisan migrate --no-interaction --force
 
       - name: Run database migrations (hr-service)
         working-directory: hr-service
         env:
           DB_CONNECTION: sqlite
-          DB_DATABASE: "$(pwd)/database/database.sqlite"
+          DB_DATABASE: "${{ github.workspace }}/hr-service/database/database.sqlite"
         run: |
+          mkdir -p database
           touch database/database.sqlite
+          php artisan key:generate --force
           php artisan migrate --no-interaction --force
 
       - name: Run Pint (hub-service)
