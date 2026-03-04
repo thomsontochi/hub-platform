@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\SeedEmployees;
+use App\Console\Commands\SimulateEmployeeEvent;
 use App\Domain\Employees\Contracts\EmployeeRepository;
 use App\Infrastructure\Employees\EloquentEmployeeRepository;
 use App\Messaging\Contracts\EventPublisher;
@@ -24,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                SeedEmployees::class,
+                SimulateEmployeeEvent::class,
+            ]);
+        }
     }
 }

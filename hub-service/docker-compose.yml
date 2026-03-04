@@ -108,6 +108,8 @@ services:
       - "6001:6001"
       - "9601:9601"
     environment:
+      SOKETI_HOST: "0.0.0.0"
+      SOKETI_DEFAULT_HOST: "0.0.0.0"
       SOKETI_DEFAULT_APP_ID: hub-app
       SOKETI_DEFAULT_APP_KEY: hub-app-key
       SOKETI_DEFAULT_APP_SECRET: hub-app-secret

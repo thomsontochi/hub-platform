@@ -121,6 +121,45 @@ This document covers both services. URLs assume execution inside the Docker netw
 
 ---
 
+## Hub Service — Real-Time Checklist Demo (Phase 6)
+
+- **Route**: `GET /demo/checklist`
+- **View**: `resources/views/realtime-checklist.blade.php`
+- **Purpose**: Connect to Soketi/Pusher-compatible WebSocket server and visualize `checklist.updated` traffic for a selected country.
+- **Configuration**: Reads credentials from `config('services.pusher')` (see `.env` `PUSHER_*` keys). Works with any Pusher protocol server; default Docker stack uses Soketi at `http://soketi:6001`.
+- **Usage**:
+  1. Ensure containers are running: `docker compose -f hub-service/docker-compose.yml up -d`.
+  2. Open `http://localhost:8082/demo/checklist`.
+  3. Run CLI utilities from the HR service (see below) to broadcast events and observe updates in real time.
+
+---
+
+## HR Service — CLI Utilities (Phase 6)
+
+### Seed Employees
+
+- **Command**: `php artisan hr:employees:seed`
+- **Options**:
+  - `--refresh`: Truncate the `employees` table before seeding.
+- **Behavior**: Creates canonical USA/Germany employee records via `EmployeeService`, dispatching RabbitMQ events for each record.
+- **Container usage**: `docker compose -f hub-service/docker-compose.yml exec hr-app php artisan hr:employees:seed --refresh`
+- **Tests**: `@hr-service/tests/Feature/SeedEmployeesCommandTest.php`
+
+### Simulate Employee Events
+
+- **Command**: `php artisan hr:employees:simulate-event`
+- **Options**:
+  - `--action=` (`created|updated|deleted`)
+  - `--country=` (`USA|GERMANY`, defaults to USA)
+  - `--employee=` Existing employee ID to hydrate payload
+  - `--payload=` Raw JSON payload override
+  - `--dry-run`: Print payload without publishing to RabbitMQ
+- **Behavior**: Publishes payloads through `PublishEmployeeEvent` queue, enabling WebSocket demo to receive synthetic traffic.
+- **Container usage**: `docker compose -f hub-service/docker-compose.yml exec hr-app php artisan hr:employees:simulate-event --action=updated --country=USA --employee=1`
+- **Tests**: `@hr-service/tests/Feature/SimulateEmployeeEventCommandTest.php`
+
+---
+
 ## HR Service API Reference
 
 Base URL: `http://hr-nginx/api/v1`
@@ -320,3 +359,30 @@ All CRUD operations dispatch a message to RabbitMQ exchange `employee.events` us
 ```
 
 > Hub Service will bind to `employee.*.*` and react based on `country`/`event_type`.
+
+---
+
+## RabbitMQ Management & Message Flow
+
+- **Management UI**: `http://localhost:15672` (login: `hub` / `secret` as defined in `.env`).
+- **Exchange**: `employee.events` (topic)
+- **Queues**:
+  - `hub.employee.events` — bound to routing key pattern `employee.*.*`.
+- **Producers**: HR Service via `PublishEmployeeEvent` job or CLI simulation command.
+- **Consumers**: Hub Service `ProjectingEmployeeEventHandler` (`php artisan events:consume-employee`).
+- **Typical flow**:
+  1. HR Service emits `EmployeeUpdated` payload to RabbitMQ.
+  2. Hub Service consumes from `hub.employee.events`, updates Redis caches, rebroadcasts `checklist.updated` via Soketi.
+  3. `/demo/checklist` page receives event and updates panels.
+
+For manual testing, use:
+
+```bash
+# Seed fixtures and create traffic
+docker compose -f hub-service/docker-compose.yml exec hr-app php artisan hr:employees:seed --refresh
+
+# Simulate a live update for USA employee #1
+docker compose -f hub-service/docker-compose.yml exec hr-app php artisan hr:employees:simulate-event --action=updated --country=USA --employee=1
+```
+
+---

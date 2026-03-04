@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    'pusher' => [
+        'app_id' => env('PUSHER_APP_ID'),
+        'key' => env('PUSHER_APP_KEY'),
+        'secret' => env('PUSHER_APP_SECRET'),
+        'cluster' => env('PUSHER_APP_CLUSTER'),
+        'options' => [
+            'host' => env('PUSHER_HOST', '127.0.0.1'),
+            'client_host' => env('PUSHER_CLIENT_HOST'),
+            'port' => (int) env('PUSHER_PORT', 6001),
+            'scheme' => env('PUSHER_SCHEME', 'http'),
+            'useTLS' => env('PUSHER_SCHEME', 'http') === 'https',
+        ],
+    ],
+
 ];

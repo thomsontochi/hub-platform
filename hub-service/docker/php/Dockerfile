@@ -27,6 +27,7 @@ RUN apt-get update \
         intl \
         pcntl \
         pdo_pgsql \
+        sockets \
         zip \
     && pecl install redis \
     && pecl install amqp \
