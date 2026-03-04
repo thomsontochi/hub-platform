@@ -80,6 +80,16 @@ If the summary panel never updates or the hub logs report `Failed to connect to 
 - **Larastan**: Each service exposes `composer analyse` which wraps `phpstan analyse` (level 5, 1G memory limit). Run inside `hub-service/` or `hr-service/` to surface static analysis issues locally.
 - **Coverage reminders**: `make test` (or `make test-hub` / `make test-hr`) respects the optional `COVERAGE=1` flag to enforce the 80% minimum defined in the Makefile.
 
+## RabbitMQ Retry & Dead-Letter Policy
+
+- The hub consumer retries transient failures via `employee.events.retry` with exponential backoff (default TTL 5 seconds) and a max of three attempts. Override via `RABBITMQ_RETRY_TTL` / `RABBITMQ_RETRY_MAX_ATTEMPTS` in `.env`.
+- After retries are exhausted messages are acknowledged and published to `hub.employee.events.dlq` for manual inspection. Monitor this queue via the RabbitMQ UI or CLI.
+- To replay up to `N` messages back onto the primary exchange:  
+  ```bash
+  docker compose -f hub-service/docker-compose.yml exec hub-app php artisan events:replay-dead-letter --limit=25
+  ```
+  Successful replays are logged with routing keys; failures are requeued on the DLQ.
+
 ## CI Guidance
 
 - Add a GitHub Actions workflow that executes:

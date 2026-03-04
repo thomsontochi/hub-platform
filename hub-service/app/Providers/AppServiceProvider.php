@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Console\Commands\ConsumeEmployeeEvents;
+use App\Console\Commands\ReplayDeadLetterQueue;
 use App\Domain\Checklists\Contracts\ChecklistCache;
 use App\Domain\Checklists\Contracts\ChecklistRuleRepository;
 use App\Domain\Employees\Contracts\EmployeeCache;
@@ -63,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ConsumeEmployeeEvents::class,
+                ReplayDeadLetterQueue::class,
             ]);
         }
     }
