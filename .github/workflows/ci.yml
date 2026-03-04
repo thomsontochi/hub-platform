@@ -43,7 +43,12 @@ jobs:
           tools: composer
           extensions: bcmath, intl, pcntl, pdo_pgsql, sockets
 
-      - name: Validate composer.json
+      - name: Validate composer.json (hub-service)
+        working-directory: hub-service
+        run: composer validate --no-check-lock
+
+      - name: Validate composer.json (hr-service)
+        working-directory: hr-service
         run: composer validate --no-check-lock
 
       - name: Cache Composer dependencies (hub-service)
