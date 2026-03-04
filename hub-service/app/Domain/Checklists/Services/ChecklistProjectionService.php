@@ -18,8 +18,7 @@ class ChecklistProjectionService
         protected ChecklistEvaluator $evaluator,
         protected ChecklistCache $cache,
         protected EmployeeCache $employeeCache,
-    ) {
-    }
+    ) {}
 
     public function project(EmployeeSnapshot $snapshot): ?ChecklistProjection
     {

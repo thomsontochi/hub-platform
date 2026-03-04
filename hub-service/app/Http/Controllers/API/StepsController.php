@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Domain\UI\Services\UiConfigurationService;
-use App\Infrastructure\UI\Cache\UiCacheRepository;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StepsIndexRequest;
 use App\Http\Resources\StepResource;
+use App\Infrastructure\UI\Cache\UiCacheRepository;
 use Illuminate\Http\JsonResponse;
 
 class StepsController extends Controller
@@ -14,8 +14,7 @@ class StepsController extends Controller
     public function __construct(
         protected UiConfigurationService $service,
         protected UiCacheRepository $cache
-    ) {
-    }
+    ) {}
 
     public function __invoke(StepsIndexRequest $request): JsonResponse
     {

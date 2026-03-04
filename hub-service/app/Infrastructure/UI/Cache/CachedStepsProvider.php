@@ -9,8 +9,7 @@ class CachedStepsProvider
     public function __construct(
         protected UiConfigurationService $service,
         protected UiCacheRepository $cache
-    ) {
-    }
+    ) {}
 
     public function get(string $country): array
     {

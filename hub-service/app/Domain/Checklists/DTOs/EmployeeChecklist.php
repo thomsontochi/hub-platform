@@ -16,8 +16,7 @@ class EmployeeChecklist
         public readonly float $completionRate,
         public readonly ?Carbon $evaluatedAt = null,
         public readonly ?string $status = null,
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $payload): self
     {

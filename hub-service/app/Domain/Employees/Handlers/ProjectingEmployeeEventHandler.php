@@ -17,8 +17,7 @@ class ProjectingEmployeeEventHandler implements EmployeeEventHandler
         protected EmployeeCache $cache,
         protected ChecklistProjectionService $projectionService,
         protected UiCacheRepository $uiCache
-    ) {
-    }
+    ) {}
 
     public function handle(string $routingKey, array $payload): void
     {

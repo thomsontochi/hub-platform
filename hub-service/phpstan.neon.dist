@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - bootstrap/app.php
+    level: 5
+    bootstrapFiles:
+        - vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php
+    ignoreErrors:
+        - '#Call to an undefined static method Illuminate\\Support\\Facades\\.*#'
+    reportUnmatchedIgnoredErrors: false
+    scanFiles:
+        - app/Http/Resources/WidgetResource.php

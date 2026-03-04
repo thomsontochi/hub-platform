@@ -74,6 +74,12 @@ If the summary panel never updates or the hub logs report `Failed to connect to 
    ```
    Any remaining `curl error 7` entries point to a Soketi host or port misconfiguration; `Class "Pusher\Pusher" not found` implies Composer dependencies or the PHP sockets extension need to be rebuilt inside `hub-app`.
 
+## CI & Static Analysis
+
+- **Continuous Integration**: GitHub Actions workflow `.github/workflows/ci.yml` installs Composer dependencies for both services, hydrates SQLite databases, and runs Laravel Pint + Pest. Private forks can re-target the branches array if needed.
+- **Larastan**: Each service exposes `composer analyse` which wraps `phpstan analyse` (level 5, 1G memory limit). Run inside `hub-service/` or `hr-service/` to surface static analysis issues locally.
+- **Coverage reminders**: `make test` (or `make test-hub` / `make test-hr`) respects the optional `COVERAGE=1` flag to enforce the 80% minimum defined in the Makefile.
+
 ## CI Guidance
 
 - Add a GitHub Actions workflow that executes:

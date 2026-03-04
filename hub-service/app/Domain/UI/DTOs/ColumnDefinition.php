@@ -10,6 +10,5 @@ class ColumnDefinition
         public readonly string $label,
         public readonly string $type,
         public readonly bool $mask = false
-    ) {
-    }
+    ) {}
 }

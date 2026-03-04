@@ -4,14 +4,12 @@ namespace App\Infrastructure\UI\Cache;
 
 use Closure;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Arr;
 
 class UiCacheRepository
 {
     public function __construct(
         protected CacheRepository $store
-    ) {
-    }
+    ) {}
 
     public function rememberSteps(string $country, Closure $callback): mixed
     {

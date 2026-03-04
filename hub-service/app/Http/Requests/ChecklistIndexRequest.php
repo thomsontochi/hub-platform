@@ -27,7 +27,7 @@ class ChecklistIndexRequest extends FormRequest
         $countries = implode(',', array_keys(config('checklists', [])));
 
         return [
-            'country' => ['required', 'string', 'in:' . $countries],
+            'country' => ['required', 'string', 'in:'.$countries],
         ];
     }
 

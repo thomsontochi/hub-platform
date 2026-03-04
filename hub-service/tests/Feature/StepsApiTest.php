@@ -1,11 +1,6 @@
 <?php
 
-use App\Domain\UI\Repositories\UiConfigurationRepository;
-use App\Domain\UI\Services\UiConfigurationService;
 use App\Http\Controllers\API\StepsController;
-use App\Http\Requests\StepsIndexRequest;
-use App\Infrastructure\UI\Cache\UiCacheRepository;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\Fluent\AssertableJson;
 

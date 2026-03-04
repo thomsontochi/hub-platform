@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics check_port_connectivity"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+          extensions: bcmath, intl, pcntl, pdo_pgsql, sockets
+
+      - name: Validate composer.json
+        run: composer validate --no-check-lock
+
+      - name: Cache Composer dependencies (hub-service)
+        uses: actions/cache@v4
+        with:
+          path: hub-service/vendor
+          key: ${{ runner.os }}-hub-composer-${{ hashFiles('hub-service/composer.lock') }}
+          restore-keys: ${{ runner.os }}-hub-composer-
+
+      - name: Cache Composer dependencies (hr-service)
+        uses: actions/cache@v4
+        with:
+          path: hr-service/vendor
+          key: ${{ runner.os }}-hr-composer-${{ hashFiles('hr-service/composer.lock') }}
+          restore-keys: ${{ runner.os }}-hr-composer-
+
+      - name: Install dependencies (hub-service)
+        working-directory: hub-service
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install dependencies (hr-service)
+        working-directory: hr-service
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Copy default environment files
+        run: |
+          cp hub-service/.env.example hub-service/.env
+          cp hr-service/.env.example hr-service/.env
+
+      - name: Run database migrations (hub-service)
+        working-directory: hub-service
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: "$(pwd)/database/database.sqlite"
+        run: |
+          touch database/database.sqlite
+          php artisan migrate --no-interaction --force
+
+      - name: Run database migrations (hr-service)
+        working-directory: hr-service
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: "$(pwd)/database/database.sqlite"
+        run: |
+          touch database/database.sqlite
+          php artisan migrate --no-interaction --force
+
+      - name: Run Pint (hub-service)
+        working-directory: hub-service
+        run: ./vendor/bin/pint --test
+
+      - name: Run Pint (hr-service)
+        working-directory: hr-service
+        run: ./vendor/bin/pint --test
+
+      - name: Run Pest tests (hub-service)
+        working-directory: hub-service
+        run: ./vendor/bin/pest
+
+      - name: Run Pest tests (hr-service)
+        working-directory: hr-service
+        run: ./vendor/bin/pest

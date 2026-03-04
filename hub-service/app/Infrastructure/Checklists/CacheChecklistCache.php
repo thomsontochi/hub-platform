@@ -12,8 +12,7 @@ class CacheChecklistCache implements ChecklistCache
 {
     public function __construct(
         protected CacheRepository $cache
-    ) {
-    }
+    ) {}
 
     public function putEmployee(EmployeeChecklist $checklist, int $ttlSeconds = 300): void
     {

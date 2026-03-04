@@ -15,12 +15,11 @@ class ChecklistUpdated implements ShouldBroadcastNow
 
     public function __construct(
         public readonly ChecklistProjection $projection
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): Channel
     {
-        return new Channel('hub.country.' . strtolower($this->projection->summary->country) . '.checklist');
+        return new Channel('hub.country.'.strtolower($this->projection->summary->country).'.checklist');
     }
 
     public function broadcastAs(): string

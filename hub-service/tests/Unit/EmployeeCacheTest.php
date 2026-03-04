@@ -6,7 +6,7 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
 
 beforeEach(function () {
-    $store = new ArrayStore();
+    $store = new ArrayStore;
     test()->cache = new CacheEmployeeCache(new Repository($store));
 });
 

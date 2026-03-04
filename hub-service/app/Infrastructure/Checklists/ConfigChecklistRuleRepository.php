@@ -5,7 +5,6 @@ namespace App\Infrastructure\Checklists;
 use App\Domain\Checklists\Contracts\ChecklistRuleRepository;
 use App\Domain\Checklists\DTOs\ChecklistRuleSet;
 use App\Domain\Checklists\DTOs\FieldRule;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class ConfigChecklistRuleRepository implements ChecklistRuleRepository
@@ -13,7 +12,7 @@ class ConfigChecklistRuleRepository implements ChecklistRuleRepository
     public function forCountry(string $country): ?ChecklistRuleSet
     {
         $countryKey = Str::lower($country);
-        $config = config('checklists.' . $countryKey);
+        $config = config('checklists.'.$countryKey);
 
         if (! $config || ! isset($config['fields'])) {
             return null;

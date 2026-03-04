@@ -55,7 +55,7 @@ class UiConfigurationRepository
     public function widgetsForStep(string $country, string $step): array
     {
         $config = $this->countryConfig($country);
-        $widgets = Arr::get($config, 'widgets.' . Str::lower($step), []);
+        $widgets = Arr::get($config, 'widgets.'.Str::lower($step), []);
 
         return collect($widgets)
             ->map(fn (array $widget) => new WidgetDefinition(

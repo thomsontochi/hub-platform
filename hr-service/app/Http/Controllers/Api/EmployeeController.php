@@ -18,8 +18,7 @@ class EmployeeController extends Controller
 {
     public function __construct(
         protected EmployeeService $service
-    ) {
-    }
+    ) {}
 
     public function index(IndexEmployeeRequest $request): AnonymousResourceCollection
     {
@@ -48,6 +47,7 @@ class EmployeeController extends Controller
             Log::warning('Employee not found when showing record', [
                 'employee_id' => $employee,
             ]);
+
             return response()->json([
                 'message' => 'Employee not found.',
             ], SymfonyResponse::HTTP_NOT_FOUND);
@@ -65,6 +65,7 @@ class EmployeeController extends Controller
                 'employee_id' => $employee,
                 'payload' => $request->validated(),
             ]);
+
             return response()->json([
                 'message' => 'Employee not found.',
             ], SymfonyResponse::HTTP_NOT_FOUND);
@@ -83,6 +84,7 @@ class EmployeeController extends Controller
             Log::warning('Employee not found when deleting record', [
                 'employee_id' => $employee,
             ]);
+
             return response()->json([
                 'message' => 'Employee not found.',
             ], SymfonyResponse::HTTP_NOT_FOUND);

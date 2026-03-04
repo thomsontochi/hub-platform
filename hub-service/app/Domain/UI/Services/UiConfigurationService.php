@@ -11,8 +11,7 @@ class UiConfigurationService
 {
     public function __construct(
         protected UiConfigurationRepository $repository
-    ) {
-    }
+    ) {}
 
     /**
      * @return StepDefinition[]

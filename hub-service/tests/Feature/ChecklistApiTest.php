@@ -3,8 +3,8 @@
 use App\Domain\Checklists\DTOs\ChecklistProjection;
 use App\Domain\Checklists\DTOs\ChecklistSummary;
 use App\Domain\Checklists\DTOs\EmployeeChecklist;
-use App\Domain\Employees\DTOs\EmployeeSnapshot;
 use App\Domain\Checklists\Services\ChecklistProjectionService;
+use App\Domain\Employees\DTOs\EmployeeSnapshot;
 use Illuminate\Support\Carbon;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Mockery;
@@ -59,7 +59,6 @@ it('returns the cached checklist projection for a country', function (): void {
     );
 
     /** @var \Tests\TestCase $this */
-
     $service = Mockery::mock(ChecklistProjectionService::class);
     $service->shouldReceive('get')
         ->once()
@@ -85,7 +84,6 @@ it('returns a 404 JSON envelope when rules are missing for a country', function 
     ]);
 
     /** @var \Tests\TestCase $this */
-
     $service = Mockery::mock(ChecklistProjectionService::class);
     $service->shouldReceive('get')
         ->once()
@@ -108,7 +106,6 @@ it('returns validation envelope for unsupported country', function (): void {
     ]);
 
     /** @var \Tests\TestCase $this */
-
     $this->getJson('/api/checklists?country=unknown')
         ->assertUnprocessable()
         ->assertJson(fn (AssertableJson $json) => $json

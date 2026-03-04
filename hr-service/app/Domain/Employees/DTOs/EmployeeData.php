@@ -11,8 +11,7 @@ class EmployeeData
         public readonly float $salary,
         public readonly string $country,
         public readonly array $attributes = [],
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $payload): self
     {

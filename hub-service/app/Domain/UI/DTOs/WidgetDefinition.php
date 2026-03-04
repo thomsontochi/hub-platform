@@ -14,6 +14,5 @@ class WidgetDefinition
         public readonly string $icon,
         public readonly string $dataSource,
         public readonly array $channels
-    ) {
-    }
+    ) {}
 }

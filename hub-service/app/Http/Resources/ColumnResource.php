@@ -5,6 +5,13 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property-read string $field
+ * @property-read string $key
+ * @property-read string $label
+ * @property-read string $type
+ * @property-read string|null $mask
+ */
 class ColumnResource extends JsonResource
 {
     /**

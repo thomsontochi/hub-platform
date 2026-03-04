@@ -6,6 +6,15 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string $last_name
+ * @property-read float|int $salary
+ * @property-read string $country
+ * @property-read \Carbon\CarbonImmutable|string|null $created_at
+ * @property-read \Carbon\CarbonImmutable|string|null $updated_at
+ */
 class EmployeeResource extends JsonResource
 {
     /**

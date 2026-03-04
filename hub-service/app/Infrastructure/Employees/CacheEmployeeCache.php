@@ -11,8 +11,7 @@ class CacheEmployeeCache implements EmployeeCache
 {
     public function __construct(
         protected CacheRepository $cache
-    ) {
-    }
+    ) {}
 
     public function remember(int $employeeId, callable $resolver): EmployeeSnapshot
     {

@@ -5,6 +5,14 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property-read string $id
+ * @property-read string $type
+ * @property-read string $label
+ * @property-read string|null $icon
+ * @property-read string $dataSource
+ * @property-read array<int, string> $channels
+ */
 class WidgetResource extends JsonResource
 {
     /**

@@ -22,7 +22,7 @@ class ChecklistEvaluator
             $rules[$fieldRule->field] = $fieldRule->rules;
 
             foreach ($fieldRule->messages as $rule => $message) {
-                $messages[$fieldRule->field . '.' . $rule] = $message;
+                $messages[$fieldRule->field.'.'.$rule] = $message;
             }
         }
 

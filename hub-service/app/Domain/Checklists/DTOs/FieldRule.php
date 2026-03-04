@@ -9,6 +9,5 @@ class FieldRule
         public readonly string $label,
         public readonly array $rules,
         public readonly array $messages = [],
-    ) {
-    }
+    ) {}
 }

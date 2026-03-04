@@ -2,10 +2,17 @@
 
 Event-driven HR platform composed of two Laravel 12 services:
 
-- **HubService** (`hub-service/`) – consumes HR events and drives the admin experience.
-- **HR Service** (`hr-service/`) – publishes employee events and checklist updates.
+- **HubService** (`hub-service/`) – consumes HR events, maintains cached projections, broadcasts checklist updates, and exposes server-driven UI APIs.
+- **HR Service** (`hr-service/`) – manages employee aggregates and publishes country-aware domain events into RabbitMQ.
 
-Both services share a Dockerised infrastructure (Postgres, Redis, RabbitMQ, Soketi, Nginx, PHP 8.4) for local development.
+Supporting infrastructure (Dockerised): PostgreSQL, Redis, RabbitMQ (management UI enabled), Soketi (Pusher-compatible WebSockets), Nginx front proxies, and PHP 8.4 FPM pools.
+
+### Technology Stack
+
+- **Backend**: Laravel 12, PHP 8.4, Pest test suites, Laravel Pint for formatting, Larastan (PHPStan) for static analysis.
+- **Messaging**: RabbitMQ topic exchange (`employee.events`) with per-country routing keys.
+- **Caching**: Redis stores employee snapshots and checklist projections using cache-aside patterns with targeted invalidation.
+- **Real-time**: Soketi broadcasts `checklist.updated` payloads to browser clients over WebSockets.
 
 ---
 
@@ -94,6 +101,31 @@ Default Docker network hosts:
 
 ---
 
+## API & Event Schema
+
+- REST endpoint catalogue (Phase 5 server-driven UI APIs) – [`docs/api.md`](docs/api.md) covers `/api/checklists`, `/api/steps`, `/api/employees`, and `/api/schema/{step}` response formats, validation envelopes, and pagination rules.
+- Domain and rule rationale – [`docs/domain.md`](docs/domain.md) breaks down USA vs. Germany checklist requirements and projection logic.
+- Event stream contracts – [`docs/messaging.md`](docs/messaging.md) captures `EmployeeCreated`, `EmployeeUpdated`, and `EmployeeDeleted` payload shapes plus routing key conventions (`employee.<country>.<action>`).
+
+## Caching Strategy
+
+- Checklist projections are cached per country (`checklist:<country>`), while employee snapshots sit in a namespaced cache repository keyed by ID for quick diffing.
+- Event handlers trigger cache invalidation selectively: creations/updates overwrite snapshots and recompute affected projections; deletions evict employees and recompute completion tallies.
+- Redis is orchestrated through Laravel cache repositories; make the store configurable via `CACHE_EVENTS_STORE`/`CACHE_CHECKLISTS_STORE` to support alternate backends in production.
+
+Further architectural notes (including cache diagrams) live in [`docs/domain.md`](docs/domain.md#checklist-projection-workflow) and [`docs/messaging.md`](docs/messaging.md#hub-service-consumer).
+
+## Real-Time Checklist Demo
+
+1. Boot the stack (`docker compose up -d` from `hub-service/`).
+2. Keep the hub consumer online: `docker compose -f hub-service/docker-compose.yml exec hub-app php artisan events:consume-employee`.
+3. Publish seed data: `docker compose -f hub-service/docker-compose.yml exec hr-app php artisan hr:employees:seed --refresh`.
+4. Visit `http://localhost:8082/demo/checklist`, choose a country, and watch `checklist.updated` events stream in; the event log panel mirrors the inbound payloads.
+
+Troubleshooting steps for reconnecting Soketi and RabbitMQ consumers are captured in [`docs/testing.md`](docs/testing.md#troubleshooting-the-real-time-checklist-demo).
+
+---
+
 ## Messaging & Queue Workers
 
 - HR Service publishes employee events to RabbitMQ via a queued job. See [`docs/messaging.md`](docs/messaging.md) for routing keys, binding instructions, and the queue worker command (`docker compose -f hub-service/docker-compose.yml exec hr-app php artisan queue:work --queue=events --tries=5`).
@@ -139,10 +171,11 @@ Both Laravel apps will throw `Illuminate\Encryption\MissingAppKeyException` unti
 
 ## Next steps
 
-- Align HR Service `.env` with any additional integration settings once new services are introduced.
-- Add automated integration tests (Pest) that exercise event publishing and Redis caching once business logic lands.
-- Document the event schema and WebSocket channels as features are implemented.
-- Build a thin UI shell (Vue/React) that consumes the Phase 5 server-driven UI APIs for a full demo experience.
+- CI pipeline (GitHub Actions) runs Composer install, SQLite migrations, Pint, Pest, and static analysis for both services—see `.github/workflows/ci.yml`.
+- Static analysis: run `composer analyse` inside each service (Larastan `level=5`) before pushing larger changes.
+- Align HR Service `.env` with additional integration settings once new services are introduced.
+- Add end-to-end tests simulating RabbitMQ → checklist projection flows when additional business rules land.
+- Build a thin UI shell (Vue/React) consuming the server-driven UI APIs for a full demo experience.
 - Extend Phase 6 demo with richer dashboards (charts, filters) once real frontend is introduced.
 
 Happy hacking! :rocket: from developia

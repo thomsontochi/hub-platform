@@ -15,8 +15,7 @@ class EmployeeListingService
     public function __construct(
         protected EmployeeCache $employeeCache,
         protected UiConfigurationRepository $uiConfig,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array{columns: ColumnDefinition[], employees: LengthAwarePaginator}
@@ -55,7 +54,7 @@ class EmployeeListingService
     }
 
     /**
-     * @param ColumnDefinition[] $columns
+     * @param  ColumnDefinition[]  $columns
      */
     protected function maskSensitiveData(EmployeeSnapshot $snapshot, array $columns): EmployeeSnapshot
     {

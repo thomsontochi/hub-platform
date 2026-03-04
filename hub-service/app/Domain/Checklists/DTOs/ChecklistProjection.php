@@ -11,6 +11,5 @@ class ChecklistProjection
         public readonly ChecklistSummary $summary,
         public readonly array $employees,
         public readonly ?EmployeeChecklist $target = null,
-    ) {
-    }
+    ) {}
 }

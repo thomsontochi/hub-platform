@@ -12,8 +12,7 @@ class EmployeeSnapshot
         public readonly string $country,
         public readonly array $attributes,
         public readonly array $meta = [],
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $payload): self
     {

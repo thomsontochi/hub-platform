@@ -50,7 +50,7 @@ trait ResolvesCountryRules
     protected function rulesForCountry(bool $isUpdate = false): array
     {
         $country = strtoupper(
-            $this->input('country', 
+            $this->input('country',
                 optional($this->route('employee'))->country ?? ''
             )
         );

@@ -26,11 +26,11 @@ afterEach(function (): void {
 
 function makeChecklistPipeline(): array
 {
-    $ruleRepository = new ConfigChecklistRuleRepository();
-    $evaluator = new ChecklistEvaluator();
-    $checklistCache = new CacheChecklistCache(new Repository(new ArrayStore()));
-    $employeeCache = new CacheEmployeeCache(new Repository(new ArrayStore()));
-    $uiCache = new UiCacheRepository(new Repository(new ArrayStore()));
+    $ruleRepository = new ConfigChecklistRuleRepository;
+    $evaluator = new ChecklistEvaluator;
+    $checklistCache = new CacheChecklistCache(new Repository(new ArrayStore));
+    $employeeCache = new CacheEmployeeCache(new Repository(new ArrayStore));
+    $uiCache = new UiCacheRepository(new Repository(new ArrayStore));
 
     $service = new ChecklistProjectionService(
         $ruleRepository,

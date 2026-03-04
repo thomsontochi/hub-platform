@@ -13,8 +13,7 @@ class SchemaController extends Controller
 {
     public function __construct(
         protected UiConfigurationRepository $repository
-    ) {
-    }
+    ) {}
 
     public function __invoke(SchemaShowRequest $request): JsonResponse
     {

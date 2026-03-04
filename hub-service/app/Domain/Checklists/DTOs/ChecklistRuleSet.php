@@ -18,6 +18,5 @@ class ChecklistRuleSet
     public function __construct(
         public readonly string $country,
         public readonly array $fields,
-    ) {
-    }
+    ) {}
 }

@@ -35,7 +35,7 @@ it('marks all fields complete when the employee satisfies the rules', function (
         new FieldRule('attributes.address', 'Address', ['required']),
     ]);
 
-    $evaluator = new ChecklistEvaluator();
+    $evaluator = new ChecklistEvaluator;
 
     $result = $evaluator->evaluate($snapshot, $ruleSet);
 
@@ -64,7 +64,7 @@ it('captures validation failures and messages when fields are incomplete', funct
         new FieldRule('attributes.address', 'Address', ['required'], ['required' => 'Address required.']),
     ]);
 
-    $evaluator = new ChecklistEvaluator();
+    $evaluator = new ChecklistEvaluator;
 
     $result = $evaluator->evaluate($snapshot, $ruleSet);
 
@@ -95,7 +95,7 @@ it('treats empty rule sets as fully complete', function (): void {
 
     $ruleSet = new ChecklistRuleSet('usa', []);
 
-    $evaluator = new ChecklistEvaluator();
+    $evaluator = new ChecklistEvaluator;
 
     $result = $evaluator->evaluate($snapshot, $ruleSet);
 

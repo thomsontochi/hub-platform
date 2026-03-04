@@ -10,6 +10,5 @@ class StepDefinition
         public readonly string $icon,
         public readonly string $path,
         public readonly int $order
-    ) {
-    }
+    ) {}
 }

@@ -16,8 +16,7 @@ class EmployeeService
 {
     public function __construct(
         protected EmployeeRepository $repository
-    ) {
-    }
+    ) {}
 
     public function list(string $country, int $perPage = 15): LengthAwarePaginator
     {

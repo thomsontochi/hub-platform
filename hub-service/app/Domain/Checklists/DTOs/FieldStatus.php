@@ -9,8 +9,7 @@ class FieldStatus
         public readonly string $label,
         public readonly bool $complete,
         public readonly ?string $message = null,
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $payload): self
     {

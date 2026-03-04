@@ -50,7 +50,7 @@ class RabbitMqConsumer
             $channel->queue_bind($queue, $exchange, $routingKey);
         }
 
-        $channel->basic_qos(null, $prefetchCount, null);
+        $channel->basic_qos(0, $prefetchCount, null);
 
         $callback = function (AMQPMessage $message) use ($channel): void {
             $routingKey = $message->getRoutingKey();

@@ -80,9 +80,6 @@ class SimulateEmployeeEvent extends Command
     }
 
     /**
-     * @param  string  $action
-     * @param  string  $country
-     * @param  string|null  $employeeId
      * @return array<string, mixed>
      */
     protected function resolvePayload(string $action, string $country, ?string $employeeId): array

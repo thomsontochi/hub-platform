@@ -10,8 +10,7 @@ class ChecklistSummary
         public readonly int $completeEmployees,
         public readonly int $incompleteEmployees,
         public readonly float $averageCompletionRate,
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $payload): self
     {

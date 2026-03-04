@@ -2,7 +2,6 @@
 
 use App\Domain\Employees\Contracts\EmployeeCache;
 use App\Domain\Employees\DTOs\EmployeeSnapshot;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\Fluent\AssertableJson;
 
@@ -88,7 +87,7 @@ it('honors pagination parameters', function (): void {
     foreach (range(2, 6) as $id) {
         $employeeCache->put(new EmployeeSnapshot(
             id: $id,
-            name: 'User ' . $id,
+            name: 'User '.$id,
             lastName: 'Test',
             salary: 60000,
             country: 'USA',

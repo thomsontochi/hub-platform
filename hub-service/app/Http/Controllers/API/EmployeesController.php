@@ -15,8 +15,7 @@ class EmployeesController extends Controller
     public function __construct(
         protected EmployeeListingService $listingService,
         protected UiCacheRepository $cache
-    ) {
-    }
+    ) {}
 
     public function __invoke(EmployeeIndexRequest $request): JsonResponse
     {
